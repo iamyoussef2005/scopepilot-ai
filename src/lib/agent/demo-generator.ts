@@ -189,6 +189,102 @@ export const SAMPLE_PRESETS: Record<string, { label: string; brief: string; blue
           "1x Product UI/UX Designer (Part-time)",
           "1x QA & DevOps Engineer"
         ]
+      },
+      codeArtifacts: {
+        prismaSchema: `datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Club {
+  id          String   @id @default(uuid())
+  name        String
+  location    String
+  courts      Court[]
+  createdAt   DateTime @default(now())
+}
+
+model Court {
+  id          String    @id @default(uuid())
+  clubId      String
+  club        Club      @relation(fields: [clubId], references: [id])
+  name        String
+  hourlyRate  Decimal
+  bookings    Booking[]
+}
+
+model Booking {
+  id            String         @id @default(uuid())
+  courtId       String
+  court         Court          @relation(fields: [courtId], references: [id])
+  startTime     DateTime
+  endTime       DateTime
+  totalAmount   Decimal
+  status        BookingStatus  @default(PENDING_PAYMENT)
+  lockExpiresAt DateTime?
+  splits        PaymentSplit[]
+  createdAt     DateTime       @default(now())
+
+  @@index([courtId, startTime, endTime])
+}
+
+model PaymentSplit {
+  id                    String   @id @default(uuid())
+  bookingId             String
+  booking               Booking  @relation(fields: [bookingId], references: [id])
+  playerEmail           String
+  amount                Decimal
+  isPaid                Boolean  @default(false)
+  stripePaymentIntentId String?
+}
+
+enum BookingStatus {
+  HELD
+  CONFIRMED
+  CANCELLED
+}`,
+        dockerCompose: `version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/padelpulse
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: padelpulse
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:`,
+        apiEndpoints: [
+          { method: "GET", path: "/api/v1/courts/availability?date=YYYY-MM-DD", description: "Fetch realtime slot availability across club courts", authRequired: false },
+          { method: "POST", path: "/api/v1/bookings/hold", description: "Place a 5-minute atomic Redis concurrency lock on court slot", authRequired: true },
+          { method: "POST", path: "/api/v1/bookings/:id/split-checkout", description: "Initiate Stripe 4-way payment split session", authRequired: true },
+          { method: "POST", path: "/api/v1/iot/gate-pin/verify", description: "Verify 4-digit PIN at turnstile gate controller", authRequired: true }
+        ]
       }
     }
   },
@@ -370,6 +466,98 @@ export const SAMPLE_PRESETS: Record<string, { label: string; brief: string; blue
           "1x Fintech Product Specialist (Consulting)",
           "1x UI Designer"
         ]
+      },
+      codeArtifacts: {
+        prismaSchema: `datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  clients   Client[]
+  invoices  Invoice[]
+}
+
+model Client {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  name      String
+  company   String?
+  email     String
+  invoices  Invoice[]
+}
+
+model Invoice {
+  id            String        @id @default(uuid())
+  invoiceNumber String        @unique
+  clientId      String
+  client        Client        @relation(fields: [clientId], references: [id])
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  issueDate     DateTime      @default(now())
+  dueDate       DateTime
+  subtotal      Decimal
+  vatRate       Decimal       @default(0.20)
+  totalAmount   Decimal
+  status        InvoiceStatus @default(DRAFT)
+  items         LineItem[]
+}
+
+model LineItem {
+  id          String   @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id])
+  description String
+  hours       Decimal
+  rate        Decimal
+  amount      Decimal
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+}`,
+        dockerCompose: `version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db:5432/freelanceflow
+      - OPENAI_API_KEY=\${OPENAI_API_KEY}
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: freelanceflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:`,
+        apiEndpoints: [
+          { method: "POST", path: "/api/v1/calendar/sync-events", description: "Ingest Google Calendar meetings and classify billable clients", authRequired: true },
+          { method: "POST", path: "/api/v1/invoices/generate-ai", description: "Synthesize approved events into structured draft invoice", authRequired: true },
+          { method: "POST", path: "/api/v1/invoices/:id/send", description: "Deliver PDF invoice and Stripe checkout link via Resend", authRequired: true },
+          { method: "GET", path: "/api/v1/tax/quarterly-pot", description: "Calculate estimated VAT and income tax liabilities", authRequired: true }
+        ]
       }
     }
   },
@@ -545,6 +733,90 @@ export const SAMPLE_PRESETS: Record<string, { label: string; brief: string; blue
           "1x Lead Full-Stack Engineer",
           "1x Healthcare Compliance / Security Engineer",
           "1x Medical UX Specialist"
+        ]
+      },
+      codeArtifacts: {
+        prismaSchema: `datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Patient {
+  id           String          @id @default(uuid())
+  nhsNumber    String?         @unique
+  fullName     String
+  dateOfBirth  DateTime
+  triageNotes  TriageSession[]
+}
+
+model Doctor {
+  id            String          @id @default(uuid())
+  gmcNumber     String          @unique
+  fullName      String
+  consultations Consultation[]
+}
+
+model TriageSession {
+  id             String          @id @default(uuid())
+  patientId      String
+  patient        Patient         @relation(fields: [patientId], references: [id])
+  chiefComplaint String
+  sbarSummary    Json            // Situation, Background, Assessment, Recommendation
+  urgencyLevel   UrgencyLevel    @default(ROUTINE)
+  consultation   Consultation?
+  createdAt      DateTime        @default(now())
+}
+
+model Consultation {
+  id              String        @id @default(uuid())
+  triageSessionId String        @unique
+  triageSession   TriageSession @relation(fields: [triageSessionId], references: [id])
+  doctorId        String
+  doctor          Doctor        @relation(fields: [doctorId], references: [id])
+  roomToken       String        @unique
+  startedAt       DateTime?
+  completedAt     DateTime?
+}
+
+enum UrgencyLevel {
+  EMERGENCY_RED
+  URGENT
+  ROUTINE
+}`,
+        dockerCompose: `version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://careuser:carepass@db:5432/carebridge
+      - LIVEKIT_API_KEY=\${LIVEKIT_API_KEY}
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: careuser
+      POSTGRES_PASSWORD: carepass
+      POSTGRES_DB: carebridge
+    ports:
+      - "5432:5432"
+    volumes:
+      - care_db:/var/lib/postgresql/data
+
+volumes:
+  care_db:`,
+        apiEndpoints: [
+          { method: "POST", path: "/api/v1/triage/intake", description: "Process patient symptom conversation and compile SBAR summary", authRequired: false },
+          { method: "POST", path: "/api/v1/consultations/create-room", description: "Generate encrypted WebRTC room token for doctor and patient", authRequired: true },
+          { method: "GET", path: "/api/v1/doctors/:id/queue", description: "Fetch prioritized patient waiting list with triage briefings", authRequired: true }
         ]
       }
     }
@@ -738,6 +1010,81 @@ export function getCustomBlueprintFromBrief(brief: string): ProductBlueprint {
         "1x Senior Full-Stack Engineer",
         "1x AI / Systems Architect",
         "1x Product Designer (UI/UX)"
+      ]
+    },
+    codeArtifacts: {
+      prismaSchema: `datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  role      UserRole @default(MEMBER)
+  createdAt DateTime @default(now())
+}
+
+model TaskRecord {
+  id          String     @id @default(uuid())
+  userId      String
+  status      TaskStatus @default(IN_PROGRESS)
+  metadata    Json?
+  createdAt   DateTime   @default(now())
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}`,
+      dockerCompose: `version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/platform_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: platform_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - data_pg:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  data_pg:`,
+      apiEndpoints: [
+        { method: "GET", path: "/api/v1/health", description: "System health check and database connectivity", authRequired: false },
+        { method: "POST", path: "/api/v1/workflows/trigger", description: "Dispatch autonomous workflow execution", authRequired: true },
+        { method: "GET", path: "/api/v1/analytics/dashboard", description: "Fetch real-time throughput metrics and execution logs", authRequired: true }
       ]
     }
   };

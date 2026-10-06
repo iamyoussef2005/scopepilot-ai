@@ -25,6 +25,19 @@ export interface SprintMilestone {
   estimatedCostUsd: number;
 }
 
+export interface ApiEndpoint {
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  path: string;
+  description: string;
+  authRequired: boolean;
+}
+
+export interface CodeArtifacts {
+  prismaSchema: string;
+  dockerCompose: string;
+  apiEndpoints: ApiEndpoint[];
+}
+
 export interface ProductBlueprint {
   projectTitle: string;
   tagline: string;
@@ -44,6 +57,7 @@ export interface ProductBlueprint {
     estimatedCostUsd: number;
     recommendedTeam: string[];
   };
+  codeArtifacts?: CodeArtifacts;
 }
 
 export interface AgentStep {

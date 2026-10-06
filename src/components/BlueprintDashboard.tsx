@@ -13,10 +13,15 @@ import {
   Target,
   ShieldCheck,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Sliders,
+  Code2,
+  Printer
 } from "lucide-react";
 import { ProductBlueprint } from "@/lib/types/blueprint";
 import MermaidViewer from "./MermaidViewer";
+import CodeArtifactsViewer from "./CodeArtifactsViewer";
+import ProposalModal from "./ProposalModal";
 
 interface BlueprintDashboardProps {
   blueprint: ProductBlueprint;
@@ -26,6 +31,37 @@ export default function BlueprintDashboard({ blueprint }: BlueprintDashboardProp
   const [activeTab, setActiveTab] = useState<"overview" | "stories" | "architecture" | "roadmap">(
     "overview"
   );
+  const [archSubTab, setArchSubTab] = useState<"diagram" | "code">("diagram");
+  const [currency, setCurrency] = useState<"USD" | "GBP" | "EUR">("USD");
+  const [hourlyRate, setHourlyRate] = useState<number>(80);
+  const [showProposalModal, setShowProposalModal] = useState<boolean>(false);
+
+  // Currency & Rate Multipliers
+  const getCurrencySymbol = (c: "USD" | "GBP" | "EUR") => {
+    switch (c) {
+      case "GBP":
+        return "£";
+      case "EUR":
+        return "€";
+      default:
+        return "$";
+    }
+  };
+
+  const getCurrencyFx = (c: "USD" | "GBP" | "EUR") => {
+    switch (c) {
+      case "GBP":
+        return 0.79;
+      case "EUR":
+        return 0.92;
+      default:
+        return 1.0;
+    }
+  };
+
+  const currencySymbol = getCurrencySymbol(currency);
+  const rateMultiplier = (hourlyRate / 80) * getCurrencyFx(currency);
+  const computedTotalCost = Math.round(blueprint.budgetSummary.estimatedCostUsd * rateMultiplier);
 
   return (
     <div className="w-full rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8 shadow-2xl backdrop-blur-md">
@@ -61,9 +97,18 @@ export default function BlueprintDashboard({ blueprint }: BlueprintDashboardProp
               <span className="text-[10px] text-zinc-500 uppercase font-semibold block">Investment</span>
               <span className="text-sm font-bold text-emerald-400 flex items-center gap-1">
                 <DollarSign className="h-3.5 w-3.5 text-emerald-400" />
-                ${blueprint.budgetSummary.estimatedCostUsd.toLocaleString()}
+                {currencySymbol}
+                {computedTotalCost.toLocaleString()}
               </span>
             </div>
+            <div className="h-8 w-[1px] bg-zinc-800" />
+            <button
+              onClick={() => setShowProposalModal(true)}
+              className="flex items-center gap-1.5 rounded-lg bg-indigo-600/90 hover:bg-indigo-600 text-white px-3 py-1.5 text-xs font-semibold shadow-sm transition-colors"
+            >
+              <Printer className="h-3.5 w-3.5" />
+              <span>SOW Proposal</span>
+            </button>
           </div>
         </div>
 
@@ -102,7 +147,7 @@ export default function BlueprintDashboard({ blueprint }: BlueprintDashboardProp
             }`}
           >
             <Network className="h-3.5 w-3.5" />
-            <span>System Architecture</span>
+            <span>System Architecture & Code</span>
           </button>
 
           <button
@@ -114,7 +159,7 @@ export default function BlueprintDashboard({ blueprint }: BlueprintDashboardProp
             }`}
           >
             <Calendar className="h-3.5 w-3.5" />
-            <span>Roadmap & Budget</span>
+            <span>Roadmap & Budget Calculator</span>
           </button>
         </div>
       </div>
@@ -300,44 +345,132 @@ export default function BlueprintDashboard({ blueprint }: BlueprintDashboardProp
         </div>
       )}
 
-      {/* Tab 3: System Architecture */}
+      {/* Tab 3: System Architecture & Code Artifacts */}
       {activeTab === "architecture" && (
         <div className="space-y-6">
-          {/* Mermaid Diagram */}
-          <MermaidViewer chart={blueprint.mermaidArchitecture} />
+          {/* Sub-tab switcher */}
+          <div className="flex items-center gap-2 border-b border-zinc-800 pb-2">
+            <button
+              onClick={() => setArchSubTab("diagram")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                archSubTab === "diagram"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-zinc-900 text-zinc-400 hover:text-white"
+              }`}
+            >
+              <Network className="h-3.5 w-3.5" />
+              <span>Interactive Architecture Flowchart</span>
+            </button>
 
-          {/* Tech Stack Breakdown */}
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">
-              Recommended Technology Stack & Architectural Rationale
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {blueprint.techStack.map((tech, idx) => (
-                <div
-                  key={idx}
-                  className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 flex flex-col justify-between"
-                >
-                  <div>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400">
-                      {tech.layer}
-                    </span>
-                    <h4 className="text-sm font-bold text-white mt-1">
-                      {tech.technology}
-                    </h4>
-                    <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
-                      {tech.rationale}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <button
+              onClick={() => setArchSubTab("code")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                archSubTab === "code"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-zinc-900 text-zinc-400 hover:text-white"
+              }`}
+            >
+              <Code2 className="h-3.5 w-3.5" />
+              <span>Developer Starter Kit (Prisma / Docker / API)</span>
+            </button>
           </div>
+
+          {archSubTab === "diagram" ? (
+            <>
+              {/* Mermaid Diagram */}
+              <MermaidViewer chart={blueprint.mermaidArchitecture} />
+
+              {/* Tech Stack Breakdown */}
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">
+                  Recommended Technology Stack & Architectural Rationale
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {blueprint.techStack.map((tech, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 flex flex-col justify-between"
+                    >
+                      <div>
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400">
+                          {tech.layer}
+                        </span>
+                        <h4 className="text-sm font-bold text-white mt-1">
+                          {tech.technology}
+                        </h4>
+                        <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
+                          {tech.rationale}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <CodeArtifactsViewer artifacts={blueprint.codeArtifacts} />
+          )}
         </div>
       )}
 
-      {/* Tab 4: Roadmap & Budget */}
+      {/* Tab 4: Roadmap & Budget Calculator */}
       {activeTab === "roadmap" && (
         <div className="space-y-6">
+          {/* Financial Customizer & Currency Toolbar */}
+          <div className="rounded-xl border border-indigo-900/40 bg-zinc-950/80 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Sliders className="h-4 w-4 text-indigo-400" />
+              <div>
+                <span className="text-xs font-bold text-white block">
+                  Interactive Budget & Currency Customizer
+                </span>
+                <span className="text-[10px] text-zinc-500">
+                  Dynamically adjust hourly rate and regional currency for SOW estimations.
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 flex-wrap">
+              {/* Currency Picker */}
+              <div className="flex items-center gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800 text-xs font-bold">
+                <button
+                  onClick={() => setCurrency("USD")}
+                  className={`px-2 py-0.5 rounded ${currency === "USD" ? "bg-indigo-600 text-white" : "text-zinc-400"}`}
+                >
+                  $ USD
+                </button>
+                <button
+                  onClick={() => setCurrency("GBP")}
+                  className={`px-2 py-0.5 rounded ${currency === "GBP" ? "bg-indigo-600 text-white" : "text-zinc-400"}`}
+                >
+                  £ GBP
+                </button>
+                <button
+                  onClick={() => setCurrency("EUR")}
+                  className={`px-2 py-0.5 rounded ${currency === "EUR" ? "bg-indigo-600 text-white" : "text-zinc-400"}`}
+                >
+                  € EUR
+                </button>
+              </div>
+
+              {/* Rate Slider */}
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-zinc-400 whitespace-nowrap">
+                  Rate: <strong>${hourlyRate}/h</strong>
+                </span>
+                <input
+                  type="range"
+                  min="40"
+                  max="160"
+                  step="5"
+                  value={hourlyRate}
+                  onChange={(e) => setHourlyRate(Number(e.target.value))}
+                  className="w-24 accent-indigo-500 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Summary Banner */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-4">
@@ -361,9 +494,10 @@ export default function BlueprintDashboard({ blueprint }: BlueprintDashboardProp
             <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-4">
               <span className="text-xs text-zinc-400">Estimated Total Investment</span>
               <p className="text-xl font-bold text-emerald-400 mt-1">
-                ${blueprint.budgetSummary.estimatedCostUsd.toLocaleString()}
+                {currencySymbol}
+                {computedTotalCost.toLocaleString()}
               </p>
-              <span className="text-[11px] text-zinc-500">Fixed-price or Sprint retainer</span>
+              <span className="text-[11px] text-zinc-500">Adjusted for {currency} @ ${hourlyRate}/hr</span>
             </div>
           </div>
 
@@ -390,47 +524,60 @@ export default function BlueprintDashboard({ blueprint }: BlueprintDashboardProp
             <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Sprint-by-Sprint Delivery Milestones
             </h4>
-            {blueprint.sprintRoadmap.map((sprint) => (
-              <div
-                key={sprint.sprintNumber}
-                className="rounded-xl border border-zinc-800 bg-zinc-950/70 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="rounded bg-indigo-500/20 text-indigo-400 px-2 py-0.5 text-xs font-bold font-mono">
-                      Sprint {sprint.sprintNumber}
-                    </span>
-                    <h5 className="text-sm font-bold text-white">{sprint.title}</h5>
+            {blueprint.sprintRoadmap.map((sprint) => {
+              const sprintCost = Math.round(sprint.estimatedCostUsd * rateMultiplier);
+              return (
+                <div
+                  key={sprint.sprintNumber}
+                  className="rounded-xl border border-zinc-800 bg-zinc-950/70 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="rounded bg-indigo-500/20 text-indigo-400 px-2 py-0.5 text-xs font-bold font-mono">
+                        Sprint {sprint.sprintNumber}
+                      </span>
+                      <h5 className="text-sm font-bold text-white">{sprint.title}</h5>
+                    </div>
+                    <ul className="mt-2 space-y-1">
+                      {sprint.coreDeliverables.map((deliv, idx) => (
+                        <li key={idx} className="flex items-center gap-2 text-xs text-zinc-400">
+                          <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                          <span>{deliv}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul className="mt-2 space-y-1">
-                    {sprint.coreDeliverables.map((deliv, idx) => (
-                      <li key={idx} className="flex items-center gap-2 text-xs text-zinc-400">
-                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                        <span>{deliv}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
 
-                <div className="flex items-center gap-6 border-t md:border-t-0 md:border-l border-zinc-800 pt-3 md:pt-0 md:pl-6 shrink-0">
-                  <div>
-                    <span className="text-[10px] text-zinc-500 uppercase block">Duration</span>
-                    <span className="text-xs font-semibold text-white">
-                      {sprint.durationWeeks} Weeks ({sprint.estimatedHours}h)
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-zinc-500 uppercase block">Sprint Cost</span>
-                    <span className="text-xs font-bold text-emerald-400">
-                      ${sprint.estimatedCostUsd.toLocaleString()}
-                    </span>
+                  <div className="flex items-center gap-6 border-t md:border-t-0 md:border-l border-zinc-800 pt-3 md:pt-0 md:pl-6 shrink-0">
+                    <div>
+                      <span className="text-[10px] text-zinc-500 uppercase block">Duration</span>
+                      <span className="text-xs font-semibold text-white">
+                        {sprint.durationWeeks} Weeks ({sprint.estimatedHours}h)
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-zinc-500 uppercase block">Sprint Cost</span>
+                      <span className="text-xs font-bold text-emerald-400">
+                        {currencySymbol}
+                        {sprintCost.toLocaleString()}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
+
+      {/* SOW Proposal Modal */}
+      <ProposalModal
+        blueprint={blueprint}
+        isOpen={showProposalModal}
+        onClose={() => setShowProposalModal(false)}
+        currencySymbol={currencySymbol}
+        rateMultiplier={rateMultiplier}
+      />
     </div>
   );
 }

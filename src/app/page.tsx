@@ -6,15 +6,17 @@ import BriefInput from "@/components/BriefInput";
 import AgentThoughtStream from "@/components/AgentThoughtStream";
 import BlueprintDashboard from "@/components/BlueprintDashboard";
 import ActionToolbar from "@/components/ActionToolbar";
+import RefinePromptBar from "@/components/RefinePromptBar";
 import { AgentStep, ProductBlueprint } from "@/lib/types/blueprint";
 import { SAMPLE_PRESETS } from "@/lib/agent/demo-generator";
 import confetti from "canvas-confetti";
-import { Sparkles, Terminal, ArrowUpRight } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 export default function Home() {
   const [apiKey, setApiKey] = useState("");
   const [brief, setBrief] = useState(SAMPLE_PRESETS.padel.brief);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isRefining, setIsRefining] = useState(false);
   const [agentSteps, setAgentSteps] = useState<AgentStep[]>([]);
   const [blueprint, setBlueprint] = useState<ProductBlueprint | null>(
     SAMPLE_PRESETS.padel.blueprint
@@ -123,6 +125,44 @@ export default function Home() {
     }
   };
 
+  const handleRefine = async (instruction: string) => {
+    if (!blueprint) return;
+    setIsRefining(true);
+    setErrorMsg(null);
+
+    try {
+      const res = await fetch("/api/refine", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          blueprint,
+          instruction,
+          apiKey
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.blueprint) {
+        setBlueprint(data.blueprint);
+        try {
+          confetti({
+            particleCount: 50,
+            spread: 60,
+            origin: { y: 0.7 }
+          });
+        } catch {
+          // Confetti silent fallback
+        }
+      } else {
+        setErrorMsg(data.error || "Failed to refine blueprint");
+      }
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Refinement request failed");
+    } finally {
+      setIsRefining(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-zinc-950 font-sans">
       <Navbar apiKey={apiKey} setApiKey={setApiKey} />
@@ -172,6 +212,7 @@ export default function Home() {
         {/* Step 2: Generated Blueprint & Actions */}
         {blueprint && (
           <section className="space-y-6 animate-in fade-in-50 duration-500">
+            <RefinePromptBar onRefine={handleRefine} isRefining={isRefining} />
             <ActionToolbar blueprint={blueprint} />
             <BlueprintDashboard blueprint={blueprint} />
           </section>
