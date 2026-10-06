@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
 
     if (resendApiKey) {
       const emailPayload = {
-        from: "ScopePilot AI <proposals@g7pro.uk>",
+        from: "ScopePilot AI <proposals@scopepilot.io>",
         to: [toEmail],
-        subject: `Product Blueprint: ${blueprint.projectTitle} — Prepared by G7 UK`,
+        subject: `Product Blueprint: ${blueprint.projectTitle} — Executive SOW`,
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b;">
             <h1 style="color: #0f172a;">${blueprint.projectTitle}</h1>
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
             <p><strong>Total Duration:</strong> ${blueprint.budgetSummary.totalEstimatedWeeks} Weeks (~${blueprint.budgetSummary.totalEstimatedHours} Hours)</p>
             <p><strong>Estimated Investment:</strong> $${blueprint.budgetSummary.estimatedCostUsd.toLocaleString()}</p>
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-            <p style="font-size: 12px; color: #94a3b8;">Generated autonomously by ScopePilot AI • G7 UK: Think. Build. Innovate.</p>
+            <p style="font-size: 12px; color: #94a3b8;">Generated autonomously by ScopePilot AI • Autonomous Product Architecture Platform</p>
           </div>
         `
       };

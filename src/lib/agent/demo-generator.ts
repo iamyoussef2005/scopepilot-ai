@@ -568,7 +568,7 @@ export function getCustomBlueprintFromBrief(brief: string): ProductBlueprint {
   const title = brief.split(" ").slice(0, 4).join(" ").replace(/[^a-zA-Z0-9 ]/g, "") || "Custom Product";
   return {
     projectTitle: `${title.charAt(0).toUpperCase() + title.slice(1)} Platform`,
-    tagline: "Autonomous End-to-End Digital Solution by G7 UK",
+    tagline: "Autonomous End-to-End Enterprise Solution",
     executiveSummary: `A purpose-built solution engineered to address: "${brief.slice(0, 180)}...". The system is architected for high availability, seamless user onboarding, and enterprise-grade scalability.`,
     targetAudience: [
       "Core end-users seeking frictionless task completion",

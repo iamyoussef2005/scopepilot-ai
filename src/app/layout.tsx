@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "ScopePilot AI — Autonomous Product Blueprint & Proposal Agent",
-  description: "Autonomous AI-powered Product Strategist & Solution Architect built for G7 UK: Think. Build. Innovate.",
+  description: "Autonomous AI-powered Product Strategist & Solution Architecture Platform.",
   icons: {
     icon: "/favicon.ico"
   }

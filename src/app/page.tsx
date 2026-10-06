@@ -132,7 +132,7 @@ export default function Home() {
         <section className="text-center space-y-4 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3.5 py-1 text-xs font-semibold text-indigo-300">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>Built for G7 UK — Creative AI & Full-Stack Builder</span>
+            <span>Autonomous Full-Stack AI Product Architect</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
@@ -182,9 +182,9 @@ export default function Home() {
       <footer className="w-full border-t border-zinc-900 bg-zinc-950/80 py-8 px-4 text-center text-xs text-zinc-500 no-print">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-zinc-300">G7 UK</span>
+            <span className="font-semibold text-zinc-300">ScopePilot AI</span>
             <span>—</span>
-            <span className="text-zinc-400 italic">Think. Build. Innovate.</span>
+            <span className="text-zinc-400">Autonomous Product Architecture & SOW Platform</span>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-zinc-400">

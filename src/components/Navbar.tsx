@@ -32,7 +32,7 @@ export default function Navbar({ apiKey, setApiKey }: NavbarProps) {
                 AI Agent
               </span>
             </div>
-            <p className="text-xs text-zinc-400">G7 UK • Think. Build. Innovate.</p>
+            <p className="text-xs text-zinc-400">Autonomous Product Architecture Platform</p>
           </div>
         </div>
 

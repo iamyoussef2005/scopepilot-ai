@@ -1,5 +1,5 @@
 # 🚀 ScopePilot AI — Autonomous Product Blueprint & Proposal Agent
-### *Engineered for G7 UK: "Think. Build. Innovate."*
+### *Autonomous Architecture & SOW Generation Platform*
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
@@ -108,5 +108,5 @@ npm run start
 
 ---
 
-## 👨‍💻 Built with Pride for G7 UK
-*G7 UK — Think. Build. Innovate.*
+## 👨‍💻 Enterprise Product Architecture Platform
+*Designed for agile product studios, software consultancies, and digital agencies.*
