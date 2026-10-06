@@ -57,7 +57,7 @@ export default function Navbar({ apiKey, setApiKey }: NavbarProps) {
           </button>
 
           <a
-            href="https://github.com"
+            href="https://github.com/iamyoussef2005/scopepilot-ai"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors"
