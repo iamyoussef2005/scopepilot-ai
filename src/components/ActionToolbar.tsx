@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Download, Mail, Code, Check, Loader2, Send, Package } from "lucide-react";
+import { Download, Mail, Code, Check, Loader2, Send, Package, Printer } from "lucide-react";
 import { ProductBlueprint } from "@/lib/types/blueprint";
 import { generateProjectZip, triggerDownloadBlob } from "@/lib/utils/export-zip";
 
@@ -43,7 +43,7 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
     try {
       const blob = await generateProjectZip(blueprint);
       const slug = blueprint.projectTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      triggerDownloadBlob(blob, `${slug}-starter-scaffold.zip`);
+      triggerDownloadBlob(blob, `${slug}-scaffold.zip`);
     } catch (e) {
       console.error("ZIP generation error", e);
     } finally {
@@ -51,7 +51,6 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
     }
   };
 
-  // PDF Export via Browser Print / Clean Printable Layout
   const handleExportPdf = () => {
     setIsExportingPdf(true);
     try {
@@ -63,7 +62,6 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
     }
   };
 
-  // Email proposal
   const handleSendEmail = async () => {
     if (!emailTo || !emailTo.includes("@")) return;
     setIsSendingEmail(true);
@@ -81,11 +79,11 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
 
       const data = await res.json();
       if (res.ok) {
-        setEmailStatus(data.message || "Email sent successfully!");
+        setEmailStatus(data.message || "Dispatched successfully!");
         setTimeout(() => {
           setShowEmailModal(false);
           setEmailStatus(null);
-        }, 2500);
+        }, 2200);
       } else {
         setEmailStatus(data.error || "Failed to send email");
       }
@@ -96,7 +94,6 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
     }
   };
 
-  // GitHub Export
   const handleExportGithub = async () => {
     setIsExportingGh(true);
     setGhStatus(null);
@@ -115,13 +112,13 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
 
       const data = await res.json();
       if (res.ok) {
-        setGhStatus(data.message || "Export completed!");
+        setGhStatus(data.message || "Synced to GitHub issues!");
         setTimeout(() => {
           setShowGithubModal(false);
           setGhStatus(null);
-        }, 2500);
+        }, 2200);
       } else {
-        setGhStatus(data.error || "GitHub export failed");
+        setGhStatus(data.error || "Export failed");
       }
     } catch (err) {
       setGhStatus(err instanceof Error ? err.message : "Network error");
@@ -137,56 +134,57 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
   };
 
   return (
-    <div className="w-full rounded-2xl border border-zinc-800 bg-zinc-950/80 p-4 sm:p-5 shadow-xl backdrop-blur-md">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="text-xs font-bold text-white uppercase tracking-wider block">
-            Autonomous Export & Delivery Suite
+    <div className="w-full rounded-xl border border-zinc-800 bg-zinc-950 p-3 sm:p-4 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs font-semibold text-zinc-300">
+            Export & Deployment Options
           </span>
-          <p className="text-[11px] text-zinc-400 mt-0.5">
-            Turn this generated blueprint into client proposals, emails, or engineering issues in 1-click.
-          </p>
+          <span className="text-zinc-600 hidden sm:inline">•</span>
+          <span className="font-mono text-[11px] text-zinc-500 hidden sm:inline">
+            Direct file outputs & issue sync
+          </span>
         </div>
 
         {/* Buttons */}
         <div className="flex items-center gap-2 flex-wrap">
           <button
-            onClick={handleExportPdf}
-            disabled={isExportingPdf}
-            className="flex items-center gap-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 px-3.5 py-2 text-xs font-semibold text-zinc-100 transition-colors border border-zinc-700"
+            onClick={handleDownloadZip}
+            disabled={isZipping}
+            className="flex items-center gap-1.5 rounded-md bg-zinc-100 hover:bg-white px-3 py-1.5 text-xs font-semibold text-zinc-950 transition-colors shadow-sm"
           >
-            <Download className="h-3.5 w-3.5 text-indigo-400" />
-            <span>Download PDF</span>
+            {isZipping ? <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-700" /> : <Package className="h-3.5 w-3.5 text-zinc-700" />}
+            <span>Starter Scaffold (.zip)</span>
           </button>
 
           <button
-            onClick={handleDownloadZip}
-            disabled={isZipping}
-            className="flex items-center gap-1.5 rounded-xl bg-purple-600/90 hover:bg-purple-600 px-3.5 py-2 text-xs font-semibold text-white transition-colors shadow-lg shadow-purple-600/20"
+            onClick={handleExportPdf}
+            disabled={isExportingPdf}
+            className="flex items-center gap-1.5 rounded-md bg-zinc-900 hover:bg-zinc-850 px-3 py-1.5 text-xs font-medium text-zinc-200 transition-colors border border-zinc-800 hover:border-zinc-750"
           >
-            {isZipping ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Package className="h-3.5 w-3.5" />}
-            <span>Scaffold (.zip)</span>
+            <Download className="h-3.5 w-3.5 text-zinc-400" />
+            <span>Print SOW PDF</span>
           </button>
 
           <button
             onClick={() => setShowEmailModal(true)}
-            className="flex items-center gap-1.5 rounded-xl bg-indigo-600/90 hover:bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white transition-colors shadow-lg shadow-indigo-600/20"
+            className="flex items-center gap-1.5 rounded-md bg-zinc-900 hover:bg-zinc-850 px-3 py-1.5 text-xs font-medium text-zinc-200 transition-colors border border-zinc-800 hover:border-zinc-750"
           >
-            <Mail className="h-3.5 w-3.5" />
+            <Mail className="h-3.5 w-3.5 text-zinc-400" />
             <span>Email Client</span>
           </button>
 
           <button
             onClick={() => setShowGithubModal(true)}
-            className="flex items-center gap-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 px-3.5 py-2 text-xs font-semibold text-zinc-300 transition-colors border border-zinc-800"
+            className="flex items-center gap-1.5 rounded-md bg-zinc-900 hover:bg-zinc-850 px-3 py-1.5 text-xs font-medium text-zinc-200 transition-colors border border-zinc-800 hover:border-zinc-750"
           >
             <GithubIcon className="h-3.5 w-3.5 text-zinc-400" />
-            <span>Push to GitHub</span>
+            <span>Sync to GitHub</span>
           </button>
 
           <button
             onClick={handleCopyJson}
-            className="flex items-center gap-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-400 hover:text-white transition-colors border border-zinc-800"
+            className="flex items-center gap-1.5 rounded-md bg-zinc-900 hover:bg-zinc-850 px-2.5 py-1.5 text-xs font-medium text-zinc-400 hover:text-white transition-colors border border-zinc-800"
             title="Copy Raw Blueprint JSON"
           >
             {copiedJson ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Code className="h-3.5 w-3.5" />}
@@ -196,32 +194,32 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
 
       {/* Email Modal */}
       {showEmailModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <Mail className="h-4 w-4 text-indigo-400" />
-              Dispatch Proposal via Email
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl border border-zinc-800 bg-zinc-900 p-5 shadow-2xl">
+            <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+              <Mail className="h-4 w-4 text-zinc-400" />
+              Dispatch SOW Summary via Email
             </h3>
             <p className="mt-1 text-xs text-zinc-400">
-              Sends an executive summary of <strong>{blueprint.projectTitle}</strong> with budget estimates to the client.
+              Sends an executive summary of <strong>{blueprint.projectTitle}</strong> with deliverables and estimated budget.
             </p>
 
             <div className="mt-4 space-y-3">
               <div>
-                <label className="text-[11px] font-semibold text-zinc-300 block mb-1">
+                <label className="text-[11px] font-mono font-medium text-zinc-300 block mb-1">
                   Recipient Email
                 </label>
                 <input
                   type="email"
-                  placeholder="client@company.com"
+                  placeholder="stakeholder@company.com"
                   value={emailTo}
                   onChange={(e) => setEmailTo(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-xs text-white placeholder-zinc-500 font-mono focus:border-zinc-500 focus:outline-none"
                 />
               </div>
 
               {emailStatus && (
-                <p className="text-xs font-medium text-emerald-400 bg-emerald-950/40 p-2 rounded border border-emerald-900/50">
+                <p className="text-xs font-mono text-emerald-400 bg-emerald-950/40 p-2 rounded border border-emerald-900/50">
                   {emailStatus}
                 </p>
               )}
@@ -230,17 +228,17 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
             <div className="mt-5 flex justify-end gap-2">
               <button
                 onClick={() => setShowEmailModal(false)}
-                className="rounded-lg px-3.5 py-1.5 text-xs font-medium text-zinc-400 hover:text-white"
+                className="rounded-md px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSendEmail}
                 disabled={isSendingEmail || !emailTo}
-                className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-md bg-zinc-100 px-3.5 py-1.5 text-xs font-semibold text-zinc-950 hover:bg-white disabled:opacity-50"
               >
-                {isSendingEmail ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
-                <span>Send Proposal</span>
+                {isSendingEmail ? <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-700" /> : <Send className="h-3.5 w-3.5 text-zinc-700" />}
+                <span>Send</span>
               </button>
             </div>
           </div>
@@ -249,45 +247,45 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
 
       {/* GitHub Modal */}
       {showGithubModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <GithubIcon className="h-4 w-4 text-purple-400" />
-              Export Stories to GitHub Issues
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl border border-zinc-800 bg-zinc-900 p-5 shadow-2xl">
+            <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+              <GithubIcon className="h-4 w-4 text-zinc-300" />
+              Sync Stories to GitHub Issues
             </h3>
             <p className="mt-1 text-xs text-zinc-400">
-              Autonomously converts all {blueprint.userStories.length} User Stories into GitHub Issues with acceptance criteria checklists.
+              Converts all {blueprint.userStories.length} User Stories into tracked GitHub Issues with acceptance criteria checklists.
             </p>
 
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 space-y-3 font-mono">
               <div>
-                <label className="text-[11px] font-semibold text-zinc-300 block mb-1">
-                  Repository Owner / Org (Optional in Demo Mode)
+                <label className="text-[11px] font-medium text-zinc-300 block mb-1">
+                  Repository Owner / Org
                 </label>
                 <input
                   type="text"
                   placeholder="e.g. acme-corp"
                   value={repoOwner}
                   onChange={(e) => setRepoOwner(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none"
+                  className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-zinc-300 block mb-1">
+                <label className="text-[11px] font-medium text-zinc-300 block mb-1">
                   Repository Name
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. padelpulse-app"
+                  placeholder="e.g. platform-service"
                   value={repoName}
                   onChange={(e) => setRepoName(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none"
+                  className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-zinc-300 block mb-1">
+                <label className="text-[11px] font-medium text-zinc-300 block mb-1">
                   Personal Access Token (Leave blank for Simulation)
                 </label>
                 <input
@@ -295,12 +293,12 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
                   placeholder="ghp_..."
                   value={githubToken}
                   onChange={(e) => setGithubToken(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none"
+                  className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none"
                 />
               </div>
 
               {ghStatus && (
-                <p className="text-xs font-medium text-emerald-400 bg-emerald-950/40 p-2 rounded border border-emerald-900/50">
+                <p className="text-xs font-mono text-emerald-400 bg-emerald-950/40 p-2 rounded border border-emerald-900/50">
                   {ghStatus}
                 </p>
               )}
@@ -309,17 +307,17 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
             <div className="mt-5 flex justify-end gap-2">
               <button
                 onClick={() => setShowGithubModal(false)}
-                className="rounded-lg px-3.5 py-1.5 text-xs font-medium text-zinc-400 hover:text-white"
+                className="rounded-md px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white"
               >
                 Cancel
               </button>
               <button
                 onClick={handleExportGithub}
                 disabled={isExportingGh}
-                className="flex items-center gap-1.5 rounded-lg bg-purple-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-purple-500"
+                className="flex items-center gap-1.5 rounded-md bg-zinc-100 px-3.5 py-1.5 text-xs font-semibold text-zinc-950 hover:bg-white"
               >
-                {isExportingGh ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <GithubIcon className="h-3.5 w-3.5" />}
-                <span>Sync to Issues</span>
+                {isExportingGh ? <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-700" /> : <GithubIcon className="h-3.5 w-3.5 text-zinc-700" />}
+                <span>Sync Issues</span>
               </button>
             </div>
           </div>

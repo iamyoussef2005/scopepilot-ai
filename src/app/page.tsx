@@ -9,8 +9,6 @@ import ActionToolbar from "@/components/ActionToolbar";
 import RefinePromptBar from "@/components/RefinePromptBar";
 import { AgentStep, ProductBlueprint } from "@/lib/types/blueprint";
 import { SAMPLE_PRESETS } from "@/lib/agent/demo-generator";
-import confetti from "canvas-confetti";
-import { Sparkles } from "lucide-react";
 
 export default function Home() {
   const [apiKey, setApiKey] = useState("");
@@ -94,15 +92,6 @@ export default function Home() {
               const result = JSON.parse(dataStr);
               if (result.blueprint) {
                 setBlueprint(result.blueprint);
-                try {
-                  confetti({
-                    particleCount: 80,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                  });
-                } catch {
-                  // Confetti silent fallback
-                }
               }
             } catch (e) {
               console.error("Blueprint parse error:", e);
@@ -144,15 +133,6 @@ export default function Home() {
       const data = await res.json();
       if (res.ok && data.blueprint) {
         setBlueprint(data.blueprint);
-        try {
-          confetti({
-            particleCount: 50,
-            spread: 60,
-            origin: { y: 0.7 }
-          });
-        } catch {
-          // Confetti silent fallback
-        }
       } else {
         setErrorMsg(data.error || "Failed to refine blueprint");
       }
@@ -164,30 +144,38 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950 font-sans">
+    <div className="flex min-h-screen flex-col bg-zinc-950 font-sans text-zinc-100 selection:bg-zinc-800">
       <Navbar apiKey={apiKey} setApiKey={setApiKey} />
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
-        {/* Hero Section */}
-        <section className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3.5 py-1 text-xs font-semibold text-indigo-300">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Autonomous Full-Stack AI Product Architect</span>
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6">
+        {/* Clean Engineering Header */}
+        <section className="space-y-2 border-b border-zinc-850 pb-6">
+          <div className="flex items-center gap-2 font-mono text-[11px] text-zinc-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span>Autonomous Product & Solution Architecture</span>
+            <span className="text-zinc-600">/</span>
+            <span>Zero-Trust Enterprise Modeling</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-            Turn Ambiguous Ideas into{" "}
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">
-              Production-Ready Products
-            </span>
-          </h1>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+                Technical Blueprint & Specification Studio
+              </h1>
+              <p className="mt-1 text-xs sm:text-sm text-zinc-400 max-w-2xl font-sans leading-relaxed">
+                Transform unstructured project briefs into structured user stories, interactive architecture graphs, typed data models, and costed sprint roadmaps.
+              </p>
+            </div>
 
-          <p className="text-sm sm:text-base text-zinc-400 leading-relaxed max-w-2xl mx-auto">
-            Autonomous multi-agent orchestration for digital agencies. Synthesizes client briefs into comprehensive technical architectures, interactive diagrams, user stories, and costed sprint roadmaps in seconds.
-          </p>
+            <div className="flex items-center gap-2 font-mono text-[11px] text-zinc-500">
+              <span className="rounded bg-zinc-900 px-2 py-1 border border-zinc-800">Next.js 15</span>
+              <span className="rounded bg-zinc-900 px-2 py-1 border border-zinc-800">Prisma</span>
+              <span className="rounded bg-zinc-900 px-2 py-1 border border-zinc-800">Mermaid.js</span>
+            </div>
+          </div>
         </section>
 
-        {/* Step 1: Input Form */}
+        {/* Input Studio */}
         <section>
           <BriefInput
             brief={brief}
@@ -197,21 +185,21 @@ export default function Home() {
           />
         </section>
 
-        {/* Error banner */}
+        {/* Error message */}
         {errorMsg && (
-          <div className="rounded-xl border border-rose-900/50 bg-rose-950/20 p-4 text-xs text-rose-300 text-center">
-            {errorMsg}
+          <div className="rounded-lg border border-rose-900/60 bg-rose-950/20 p-3 font-mono text-xs text-rose-300">
+            [ERROR] {errorMsg}
           </div>
         )}
 
-        {/* Agent Thought Stream */}
+        {/* Pipeline Telemetry Log */}
         <section>
           <AgentThoughtStream steps={agentSteps} isGenerating={isGenerating} />
         </section>
 
-        {/* Step 2: Generated Blueprint & Actions */}
+        {/* Generated Specification & Suite */}
         {blueprint && (
-          <section className="space-y-6 animate-in fade-in-50 duration-500">
+          <section className="space-y-4">
             <RefinePromptBar onRefine={handleRefine} isRefining={isRefining} />
             <ActionToolbar blueprint={blueprint} />
             <BlueprintDashboard blueprint={blueprint} />
@@ -220,17 +208,15 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full border-t border-zinc-900 bg-zinc-950/80 py-8 px-4 text-center text-xs text-zinc-500 no-print">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="w-full border-t border-zinc-900 bg-zinc-950 py-6 px-4 text-xs text-zinc-500 no-print font-mono">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-zinc-300">ScopePilot AI</span>
-            <span>—</span>
-            <span className="text-zinc-400">Autonomous Product Architecture & SOW Platform</span>
+            <span className="font-semibold text-zinc-300">ScopePilot Studio</span>
+            <span className="text-zinc-600">—</span>
+            <span className="text-zinc-500">Autonomous Product Architecture</span>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-zinc-400">
-              Stack: Next.js 15 • TypeScript • Tailwind • Mermaid.js • Resend • GitHub API
-            </span>
+          <div className="text-zinc-600 text-[11px]">
+            Ready for Production Deployment • MIT License
           </div>
         </div>
       </footer>
