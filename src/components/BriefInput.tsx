@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { Sparkles, ArrowRight, Lightbulb, RefreshCw } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Sparkles, ArrowRight, Lightbulb, RefreshCw, Mic, MicOff } from "lucide-react";
 import { SAMPLE_PRESETS } from "@/lib/agent/demo-generator";
 
 interface BriefInputProps {
@@ -17,6 +17,63 @@ export default function BriefInput({
   isLoading,
   onSubmit
 }: BriefInputProps) {
+  const [isListening, setIsListening] = useState(false);
+  const [hasSpeechSupport, setHasSpeechSupport] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const SpeechRecognition =
+        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        setHasSpeechSupport(true);
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = "en-US";
+
+        recognition.onresult = (event: any) => {
+          let transcript = "";
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+          }
+          if (transcript) {
+            setBrief(brief ? `${brief} ${transcript}` : transcript);
+          }
+        };
+
+        recognition.onerror = () => {
+          setIsListening(false);
+        };
+
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+
+        recognitionRef.current = recognition;
+      }
+    }
+  }, [brief, setBrief]);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      alert("Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (err) {
+        console.warn("Speech start failed", err);
+      }
+    }
+  };
+
   const handleSelectPreset = (key: keyof typeof SAMPLE_PRESETS) => {
     setBrief(SAMPLE_PRESETS[key].brief);
   };
@@ -67,22 +124,46 @@ export default function BriefInput({
         </div>
       </div>
 
-      {/* Input Area */}
+      {/* Input Area with Voice Dictation */}
       <div className="relative">
         <textarea
           rows={4}
           value={brief}
           onChange={(e) => setBrief(e.target.value)}
           placeholder="E.g., We need an autonomous AI platform that monitors e-commerce stores, flags stock shortages, and automatically generates purchase orders with supplier APIs..."
-          className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 p-4 text-sm text-zinc-100 placeholder-zinc-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all resize-y leading-relaxed font-sans"
+          className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 p-4 pb-10 text-sm text-zinc-100 placeholder-zinc-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all resize-y leading-relaxed font-sans"
         />
+
+        {/* Dictation Button */}
+        <button
+          type="button"
+          onClick={toggleListening}
+          className={`absolute bottom-3 right-3 flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
+            isListening
+              ? "bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse"
+              : "bg-zinc-900/90 text-zinc-400 hover:text-white border border-zinc-800 hover:bg-zinc-800"
+          }`}
+          title="Voice Dictate Client Brief"
+        >
+          {isListening ? (
+            <>
+              <MicOff className="h-3.5 w-3.5 text-rose-400" />
+              <span>Listening...</span>
+            </>
+          ) : (
+            <>
+              <Mic className="h-3.5 w-3.5 text-indigo-400" />
+              <span>Voice Dictation</span>
+            </>
+          )}
+        </button>
       </div>
 
       {/* Footer & Submit */}
       <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-xs text-zinc-400">
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-400" />
-          <span>Multi-agent workflow: Product Strategist • Solution Architect • Scrum Lead</span>
+          <span>Multi-agent workflow: Product Strategist • Solution Architect • Scrum Lead • Security Auditor</span>
         </div>
 
         <button

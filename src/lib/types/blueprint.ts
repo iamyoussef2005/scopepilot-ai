@@ -38,6 +38,31 @@ export interface CodeArtifacts {
   apiEndpoints: ApiEndpoint[];
 }
 
+export interface SecurityRisk {
+  category: "Authentication & Authorization" | "Data Privacy & Encryption" | "Infrastructure & DDoS" | "API Security";
+  risk: string;
+  severity: "Low" | "Medium" | "High" | "Critical";
+  mitigation: string;
+}
+
+export interface ComplianceItem {
+  standard: "GDPR" | "SOC 2" | "OWASP Top 10" | "HIPAA" | "PCI-DSS";
+  status: "Compliant by Design" | "Requires Enterprise Add-on";
+  notes: string;
+}
+
+export interface SecurityProfile {
+  overallScore: number;
+  grade: string;
+  threatRisks: SecurityRisk[];
+  complianceChecklist: ComplianceItem[];
+  disasterRecovery: {
+    targetRto: string;
+    targetRpo: string;
+    backupFrequency: string;
+  };
+}
+
 export interface ProductBlueprint {
   projectTitle: string;
   tagline: string;
@@ -58,6 +83,7 @@ export interface ProductBlueprint {
     recommendedTeam: string[];
   };
   codeArtifacts?: CodeArtifacts;
+  securityProfile?: SecurityProfile;
 }
 
 export interface AgentStep {

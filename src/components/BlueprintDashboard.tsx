@@ -22,15 +22,16 @@ import { ProductBlueprint } from "@/lib/types/blueprint";
 import MermaidViewer from "./MermaidViewer";
 import CodeArtifactsViewer from "./CodeArtifactsViewer";
 import ProposalModal from "./ProposalModal";
+import SecurityComplianceView from "./SecurityComplianceView";
 
 interface BlueprintDashboardProps {
   blueprint: ProductBlueprint;
 }
 
 export default function BlueprintDashboard({ blueprint }: BlueprintDashboardProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "stories" | "architecture" | "roadmap">(
-    "overview"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "stories" | "architecture" | "roadmap" | "security"
+  >("overview");
   const [archSubTab, setArchSubTab] = useState<"diagram" | "code">("diagram");
   const [currency, setCurrency] = useState<"USD" | "GBP" | "EUR">("USD");
   const [hourlyRate, setHourlyRate] = useState<number>(80);
@@ -160,6 +161,18 @@ export default function BlueprintDashboard({ blueprint }: BlueprintDashboardProp
           >
             <Calendar className="h-3.5 w-3.5" />
             <span>Roadmap & Budget Calculator</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("security")}
+            className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
+              activeTab === "security"
+                ? "bg-indigo-600/20 text-indigo-400 border border-indigo-500/30"
+                : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+            }`}
+          >
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+            <span>Security & Compliance</span>
           </button>
         </div>
       </div>
@@ -568,6 +581,11 @@ export default function BlueprintDashboard({ blueprint }: BlueprintDashboardProp
             })}
           </div>
         </div>
+      )}
+
+      {/* Tab 5: Security & Compliance */}
+      {activeTab === "security" && (
+        <SecurityComplianceView profile={blueprint.securityProfile} />
       )}
 
       {/* SOW Proposal Modal */}

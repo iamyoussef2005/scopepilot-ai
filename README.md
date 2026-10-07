@@ -20,7 +20,9 @@
 - 🔄 **Conversational AI Refinement**: Dynamic feedback loop allowing users to refine scope, add mobile apps, or optimize budgets in real time.
 - 💱 **Interactive Financial Modeler**: Dynamic currency switcher (**$ USD**, **£ GBP**, **€ EUR**) with live hourly rate recalculation.
 - 📄 **Executive SOW Proposal & PDF**: One-click printable Statement of Work (SOW) proposal documents with sign-off blocks.
-- 🐙 **Backlog Automation**: 1-click sync of user stories to GitHub Issues and proposal delivery via Resend API.
+- 📦 **1-Click Starter Scaffold (.zip)**: Instant bundle download containing `schema.prisma`, `docker-compose.yml`, `.env.example`, and full specification.
+- 🛡️ **Security & Compliance Audit**: OWASP/STRIDE threat matrix, GDPR readiness checklist, and disaster recovery RTO/RPO metrics.
+- 🎙️ **Voice Dictation**: Real-time microphone speech-to-text integration for effortless client brief dictation.
 - 🚀 **Zero-Key Demo Mode**: Pre-loaded with curated presets (Padel Booking App, AI Invoicing SaaS, NHS Telehealth Hub).
 
 ---

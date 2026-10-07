@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Download, Mail, Code, Check, Loader2, Send } from "lucide-react";
+import { Download, Mail, Code, Check, Loader2, Send, Package } from "lucide-react";
 import { ProductBlueprint } from "@/lib/types/blueprint";
+import { generateProjectZip, triggerDownloadBlob } from "@/lib/utils/export-zip";
 
 function GithubIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
   return (
@@ -35,6 +36,20 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
   const [ghStatus, setGhStatus] = useState<string | null>(null);
 
   const [copiedJson, setCopiedJson] = useState(false);
+  const [isZipping, setIsZipping] = useState(false);
+
+  const handleDownloadZip = async () => {
+    setIsZipping(true);
+    try {
+      const blob = await generateProjectZip(blueprint);
+      const slug = blueprint.projectTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      triggerDownloadBlob(blob, `${slug}-starter-scaffold.zip`);
+    } catch (e) {
+      console.error("ZIP generation error", e);
+    } finally {
+      setIsZipping(false);
+    }
+  };
 
   // PDF Export via Browser Print / Clean Printable Layout
   const handleExportPdf = () => {
@@ -142,6 +157,15 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
           >
             <Download className="h-3.5 w-3.5 text-indigo-400" />
             <span>Download PDF</span>
+          </button>
+
+          <button
+            onClick={handleDownloadZip}
+            disabled={isZipping}
+            className="flex items-center gap-1.5 rounded-xl bg-purple-600/90 hover:bg-purple-600 px-3.5 py-2 text-xs font-semibold text-white transition-colors shadow-lg shadow-purple-600/20"
+          >
+            {isZipping ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Package className="h-3.5 w-3.5" />}
+            <span>Scaffold (.zip)</span>
           </button>
 
           <button
