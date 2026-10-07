@@ -154,7 +154,7 @@ export default function ActionToolbar({ blueprint }: ActionToolbarProps) {
             className="flex items-center gap-1.5 rounded-md bg-zinc-100 hover:bg-white px-3 py-1.5 text-xs font-semibold text-zinc-950 transition-colors shadow-sm"
           >
             {isZipping ? <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-700" /> : <Package className="h-3.5 w-3.5 text-zinc-700" />}
-            <span>Starter Scaffold (.zip)</span>
+            <span>Export Package (.zip)</span>
           </button>
 
           <button

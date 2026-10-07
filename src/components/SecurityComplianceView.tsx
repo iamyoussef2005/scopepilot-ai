@@ -35,7 +35,7 @@ export default function SecurityComplianceView({ profile }: SecurityComplianceVi
         category: "API Security",
         risk: "Malicious payload injection or untyped schema poisoning",
         severity: "High",
-        mitigation: "Strict runtime Zod validation on all inbound JSON payloads and automated SQL parameterization via Prisma ORM."
+        mitigation: "Strict runtime schema contract validation on all inbound JSON payloads and automated parameterized queries with prepared statements."
       }
     ],
     complianceChecklist: [

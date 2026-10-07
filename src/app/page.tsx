@@ -167,10 +167,10 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="flex items-center gap-2 font-mono text-[11px] text-zinc-500">
-              <span className="rounded bg-zinc-900 px-2 py-1 border border-zinc-800">Next.js 15</span>
-              <span className="rounded bg-zinc-900 px-2 py-1 border border-zinc-800">Prisma</span>
-              <span className="rounded bg-zinc-900 px-2 py-1 border border-zinc-800">Mermaid.js</span>
+            <div className="flex items-center gap-2 font-mono text-[11px] text-zinc-400">
+              <span className="rounded bg-zinc-900 px-2 py-1 border border-zinc-800">SOC 2 Type II</span>
+              <span className="rounded bg-zinc-900 px-2 py-1 border border-zinc-800">GDPR Ready</span>
+              <span className="rounded bg-zinc-900 px-2 py-1 border border-zinc-800">Automated SOW</span>
             </div>
           </div>
         </section>

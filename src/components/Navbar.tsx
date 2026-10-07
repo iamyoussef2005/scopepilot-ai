@@ -30,7 +30,7 @@ export default function Navbar({ apiKey, setApiKey }: NavbarProps) {
             <span className="text-zinc-600">/</span>
             <span className="font-mono text-[11px] text-zinc-400">Architecture Studio</span>
             <span className="hidden sm:inline-block rounded px-1.5 py-0.2 bg-zinc-800 text-[10px] font-mono text-zinc-400 border border-zinc-700/50">
-              v1.2
+              Enterprise
             </span>
           </div>
         </div>
@@ -42,7 +42,7 @@ export default function Navbar({ apiKey, setApiKey }: NavbarProps) {
             <span className="text-[11px] text-zinc-300">Agents Online</span>
           </div>
           <span className="text-zinc-600">•</span>
-          <span className="text-[11px] text-zinc-500">Zod Strict Schema • SSE Pipeline</span>
+          <span className="text-[11px] text-zinc-500">Autonomous Synthesis Pipeline</span>
         </div>
 
         {/* Actions */}

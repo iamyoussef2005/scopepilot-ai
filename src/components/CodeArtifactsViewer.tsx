@@ -31,46 +31,46 @@ export default function CodeArtifactsViewer({ artifacts }: CodeArtifactsViewerPr
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-3 mb-4">
         <div>
-          <h4 className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-indigo-500" />
-            Developer Starter Kit & Production Code Artifacts
+          <h4 className="text-xs font-semibold text-zinc-300 uppercase tracking-wider font-mono flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            System Data Models & Service Architecture Specification
           </h4>
-          <p className="text-[11px] text-zinc-500 mt-0.5">
-            Auto-generated database schema, Docker container topology, and API routes.
+          <p className="text-[11px] text-zinc-500 mt-0.5 font-sans">
+            Normalized relational database schema, containerization topology, and service endpoint contracts.
           </p>
         </div>
 
         {/* Tab switchers */}
-        <div className="flex items-center gap-1.5 bg-zinc-900/80 p-1 rounded-xl border border-zinc-800">
+        <div className="flex items-center gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800 font-mono text-xs">
           <button
             onClick={() => setActiveTab("prisma")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded transition-all ${
               activeTab === "prisma"
-                ? "bg-indigo-600 text-white shadow-sm"
+                ? "bg-zinc-800 text-white font-semibold"
                 : "text-zinc-400 hover:text-white"
             }`}
           >
             <Database className="h-3.5 w-3.5" />
-            <span>schema.prisma</span>
+            <span>Relational Schema</span>
           </button>
 
           <button
             onClick={() => setActiveTab("docker")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded transition-all ${
               activeTab === "docker"
-                ? "bg-indigo-600 text-white shadow-sm"
+                ? "bg-zinc-800 text-white font-semibold"
                 : "text-zinc-400 hover:text-white"
             }`}
           >
             <Container className="h-3.5 w-3.5" />
-            <span>docker-compose</span>
+            <span>Infrastructure Spec</span>
           </button>
 
           <button
             onClick={() => setActiveTab("api")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded transition-all ${
               activeTab === "api"
-                ? "bg-indigo-600 text-white shadow-sm"
+                ? "bg-zinc-800 text-white font-semibold"
                 : "text-zinc-400 hover:text-white"
             }`}
           >

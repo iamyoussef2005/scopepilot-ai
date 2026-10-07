@@ -150,7 +150,7 @@ export default function BlueprintDashboard({ blueprint }: BlueprintDashboardProp
             }`}
           >
             <Network className="h-3.5 w-3.5" />
-            <span>Architecture & Code</span>
+            <span>System Architecture</span>
           </button>
 
           <button
@@ -346,7 +346,7 @@ export default function BlueprintDashboard({ blueprint }: BlueprintDashboardProp
               }`}
             >
               <Network className="h-3 w-3" />
-              <span>Architecture Graph</span>
+              <span>System Topology Flow</span>
             </button>
 
             <button
@@ -356,7 +356,7 @@ export default function BlueprintDashboard({ blueprint }: BlueprintDashboardProp
               }`}
             >
               <Code2 className="h-3 w-3" />
-              <span>Developer Starter Kit (Prisma / Docker / API)</span>
+              <span>Data Models & Service Contracts</span>
             </button>
           </div>
 

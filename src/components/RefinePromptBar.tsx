@@ -12,7 +12,7 @@ export default function RefinePromptBar({ onRefine, isRefining }: RefinePromptBa
   const [instruction, setInstruction] = useState("");
 
   const quickChips = [
-    { label: "React Native Mobile App", text: "Add a cross-platform React Native mobile app with push notifications" },
+    { label: "Cross-Platform Mobile App", text: "Add a high-performance cross-platform mobile client with push notifications" },
     { label: "B2B Multi-Tenancy & RBAC", text: "Add multi-tenant workspaces with role-based permissions (RBAC)" },
     { label: "Optimize Budget (< $15k)", text: "Optimize scope and timeline to target a lean MVP under $15,000" },
     { label: "Localization (EN/AR)", text: "Add multi-language localization support including English and Arabic" }
