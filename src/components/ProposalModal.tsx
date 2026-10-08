@@ -80,11 +80,16 @@ export default function ProposalModal({
         {/* Printable Document Body */}
         <div className="space-y-8 font-sans">
           {/* Header */}
-          <div className="flex items-start justify-between border-b border-zinc-200 pb-6">
+          <div className="flex items-start justify-between border-b-2 border-indigo-600 pb-6">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-indigo-600">
-                {agencyName}
-              </p>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-white bg-indigo-600 px-2 py-0.5 rounded">
+                  OFFICIAL SOW SPECIFICATION
+                </span>
+                <span className="text-xs font-bold uppercase tracking-wider text-indigo-700">
+                  {agencyName}
+                </span>
+              </div>
               <h1 className="mt-1 text-2xl sm:text-3xl font-black text-zinc-900">
                 {blueprint.projectTitle}
               </h1>
@@ -92,9 +97,10 @@ export default function ProposalModal({
                 {blueprint.tagline}
               </p>
             </div>
-            <div className="text-right text-xs text-zinc-500">
-              <p><strong>Prepared for:</strong> {clientName}</p>
-              <p><strong>Status:</strong> Executive Proposal</p>
+            <div className="text-right text-xs text-zinc-500 font-mono space-y-0.5">
+              <p><strong>Prepared For:</strong> <span className="text-zinc-900 font-bold">{clientName}</span></p>
+              <p><strong>Document ID:</strong> SP-SOW-{Math.abs(blueprint.projectTitle.split("").reduce((a, b) => a + b.charCodeAt(0), 0))}</p>
+              <p><strong>Status:</strong> Executive Ready • Fixed Scope</p>
               <p><strong>Date:</strong> {new Date().toLocaleDateString("en-GB")}</p>
             </div>
           </div>

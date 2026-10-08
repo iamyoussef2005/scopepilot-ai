@@ -2,28 +2,57 @@
 
 import React, { useState } from "react";
 import { CodeArtifacts } from "@/lib/types/blueprint";
-import { Copy, Check, Database, Container, Server, Shield } from "lucide-react";
+import { Copy, Check, Database, Container, Server, Shield, FileText, Download } from "lucide-react";
 
 interface CodeArtifactsViewerProps {
   artifacts?: CodeArtifacts;
 }
 
 export default function CodeArtifactsViewer({ artifacts }: CodeArtifactsViewerProps) {
-  const [activeTab, setActiveTab] = useState<"prisma" | "docker" | "api">("prisma");
+  const [activeTab, setActiveTab] = useState<"prisma" | "docker" | "env" | "api">("prisma");
   const [copied, setCopied] = useState<string | null>(null);
 
   if (!artifacts) {
     return (
-      <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-6 text-center text-xs text-zinc-500">
+      <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-6 text-center text-xs text-zinc-500 font-mono">
         Code artifacts are generating...
       </div>
     );
   }
 
+  const envContent = artifacts.envExample || `# Database Connection
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/platform_db"
+
+# Cache & In-Memory Store
+REDIS_URL="redis://localhost:6379"
+
+# API & Server Configuration
+PORT=3000
+NODE_ENV="development"
+JWT_SECRET="super-secret-jwt-token-change-in-production"
+
+# External Integrations (Optional)
+STRIPE_SECRET_KEY="sk_test_..."
+RESEND_API_KEY="re_..."
+GEMINI_API_KEY=""
+`;
+
   const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
     setCopied(key);
     setTimeout(() => setCopied(null), 2000);
+  };
+
+  const handleDownloadFile = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -41,7 +70,7 @@ export default function CodeArtifactsViewer({ artifacts }: CodeArtifactsViewerPr
         </div>
 
         {/* Tab switchers */}
-        <div className="flex items-center gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800 font-mono text-xs">
+        <div className="flex items-center gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800 font-mono text-xs overflow-x-auto">
           <button
             onClick={() => setActiveTab("prisma")}
             className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded transition-all ${
@@ -51,7 +80,7 @@ export default function CodeArtifactsViewer({ artifacts }: CodeArtifactsViewerPr
             }`}
           >
             <Database className="h-3.5 w-3.5" />
-            <span>Relational Schema</span>
+            <span>Schema</span>
           </button>
 
           <button
@@ -63,7 +92,19 @@ export default function CodeArtifactsViewer({ artifacts }: CodeArtifactsViewerPr
             }`}
           >
             <Container className="h-3.5 w-3.5" />
-            <span>Infrastructure Spec</span>
+            <span>Docker</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("env")}
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded transition-all ${
+              activeTab === "env"
+                ? "bg-zinc-800 text-white font-semibold"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            <FileText className="h-3.5 w-3.5" />
+            <span>.env.example</span>
           </button>
 
           <button
@@ -75,7 +116,7 @@ export default function CodeArtifactsViewer({ artifacts }: CodeArtifactsViewerPr
             }`}
           >
             <Server className="h-3.5 w-3.5" />
-            <span>API Endpoints ({artifacts.apiEndpoints.length})</span>
+            <span>API ({artifacts.apiEndpoints.length})</span>
           </button>
         </div>
       </div>
@@ -83,14 +124,24 @@ export default function CodeArtifactsViewer({ artifacts }: CodeArtifactsViewerPr
       {/* Tab 1: Prisma */}
       {activeTab === "prisma" && (
         <div className="relative">
-          <button
-            onClick={() => handleCopy(artifacts.prismaSchema, "prisma")}
-            className="absolute top-3 right-3 flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/90 px-2.5 py-1 text-xs text-zinc-300 hover:text-white transition-colors z-10"
-          >
-            {copied === "prisma" ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-            <span>{copied === "prisma" ? "Copied" : "Copy Schema"}</span>
-          </button>
-          <pre className="rounded-xl border border-zinc-800/80 bg-zinc-900/60 p-4 font-mono text-xs text-indigo-200 overflow-x-auto max-h-[380px] leading-relaxed">
+          <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
+            <button
+              onClick={() => handleDownloadFile(artifacts.prismaSchema, "schema.prisma")}
+              className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/90 px-2.5 py-1 text-xs text-zinc-300 hover:text-white transition-colors"
+              title="Download schema.prisma"
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span>Download</span>
+            </button>
+            <button
+              onClick={() => handleCopy(artifacts.prismaSchema, "prisma")}
+              className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/90 px-2.5 py-1 text-xs text-zinc-300 hover:text-white transition-colors"
+            >
+              {copied === "prisma" ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+              <span>{copied === "prisma" ? "Copied" : "Copy"}</span>
+            </button>
+          </div>
+          <pre className="rounded-xl border border-zinc-800/80 bg-zinc-900/60 p-4 font-mono text-xs text-indigo-200 overflow-x-auto max-h-[420px] leading-relaxed">
             {artifacts.prismaSchema}
           </pre>
         </div>
@@ -99,20 +150,56 @@ export default function CodeArtifactsViewer({ artifacts }: CodeArtifactsViewerPr
       {/* Tab 2: Docker */}
       {activeTab === "docker" && (
         <div className="relative">
-          <button
-            onClick={() => handleCopy(artifacts.dockerCompose, "docker")}
-            className="absolute top-3 right-3 flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/90 px-2.5 py-1 text-xs text-zinc-300 hover:text-white transition-colors z-10"
-          >
-            {copied === "docker" ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-            <span>{copied === "docker" ? "Copied" : "Copy YAML"}</span>
-          </button>
-          <pre className="rounded-xl border border-zinc-800/80 bg-zinc-900/60 p-4 font-mono text-xs text-cyan-200 overflow-x-auto max-h-[380px] leading-relaxed">
+          <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
+            <button
+              onClick={() => handleDownloadFile(artifacts.dockerCompose, "docker-compose.yml")}
+              className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/90 px-2.5 py-1 text-xs text-zinc-300 hover:text-white transition-colors"
+              title="Download docker-compose.yml"
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span>Download</span>
+            </button>
+            <button
+              onClick={() => handleCopy(artifacts.dockerCompose, "docker")}
+              className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/90 px-2.5 py-1 text-xs text-zinc-300 hover:text-white transition-colors"
+            >
+              {copied === "docker" ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+              <span>{copied === "docker" ? "Copied" : "Copy"}</span>
+            </button>
+          </div>
+          <pre className="rounded-xl border border-zinc-800/80 bg-zinc-900/60 p-4 font-mono text-xs text-cyan-200 overflow-x-auto max-h-[420px] leading-relaxed">
             {artifacts.dockerCompose}
           </pre>
         </div>
       )}
 
-      {/* Tab 3: API Endpoints */}
+      {/* Tab 3: Env Example */}
+      {activeTab === "env" && (
+        <div className="relative">
+          <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
+            <button
+              onClick={() => handleDownloadFile(envContent, ".env.example")}
+              className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/90 px-2.5 py-1 text-xs text-zinc-300 hover:text-white transition-colors"
+              title="Download .env.example"
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span>Download</span>
+            </button>
+            <button
+              onClick={() => handleCopy(envContent, "env")}
+              className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/90 px-2.5 py-1 text-xs text-zinc-300 hover:text-white transition-colors"
+            >
+              {copied === "env" ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+              <span>{copied === "env" ? "Copied" : "Copy"}</span>
+            </button>
+          </div>
+          <pre className="rounded-xl border border-zinc-800/80 bg-zinc-900/60 p-4 font-mono text-xs text-amber-200 overflow-x-auto max-h-[420px] leading-relaxed">
+            {envContent}
+          </pre>
+        </div>
+      )}
+
+      {/* Tab 4: API Endpoints */}
       {activeTab === "api" && (
         <div className="space-y-2">
           {artifacts.apiEndpoints.map((endpoint, i) => (

@@ -1,4 +1,5 @@
 import { ProductBlueprint } from "@/lib/types/blueprint";
+import { synthesizeDomainBlueprint } from "./domain-engine";
 
 export const SAMPLE_PRESETS: Record<string, { label: string; brief: string; blueprint: ProductBlueprint }> = {
   padel: {
@@ -824,19 +825,16 @@ volumes:
 };
 
 export function getCustomBlueprintFromBrief(brief: string): ProductBlueprint {
-  // Check if matches any preset keyword
-  const lower = brief.toLowerCase();
-  if (lower.includes("padel") || lower.includes("court") || lower.includes("sport") || lower.includes("tennis")) {
-    return SAMPLE_PRESETS.padel.blueprint;
-  }
-  if (lower.includes("invoice") || lower.includes("freelanc") || lower.includes("tax") || lower.includes("bill") || lower.includes("finance")) {
-    return SAMPLE_PRESETS.invoicing.blueprint;
-  }
-  if (lower.includes("health") || lower.includes("doctor") || lower.includes("telemed") || lower.includes("clinic") || lower.includes("patient")) {
-    return SAMPLE_PRESETS.telehealth.blueprint;
-  }
+  // Check if matches exact preset brief
+  if (brief === SAMPLE_PRESETS.padel.brief) return SAMPLE_PRESETS.padel.blueprint;
+  if (brief === SAMPLE_PRESETS.invoicing.brief) return SAMPLE_PRESETS.invoicing.blueprint;
+  if (brief === SAMPLE_PRESETS.telehealth.brief) return SAMPLE_PRESETS.telehealth.blueprint;
 
-  // Generative fallback dynamic blueprint based on user's brief
+  // Synthesize custom blueprint dynamically matching any domain
+  return synthesizeDomainBlueprint(brief);
+}
+
+function _legacyUnusedFallback(brief: string): ProductBlueprint {
   const title = brief.split(" ").slice(0, 4).join(" ").replace(/[^a-zA-Z0-9 ]/g, "") || "Custom Product";
   return {
     projectTitle: `${title.charAt(0).toUpperCase() + title.slice(1)} Platform`,

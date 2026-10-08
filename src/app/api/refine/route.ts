@@ -100,26 +100,80 @@ Return strictly valid JSON adhering to the ProductBlueprint schema without markd
         complexity: "Medium",
         isMvp: true
       });
-    } else if (lower.includes("multi-tenant") || lower.includes("b2b") || lower.includes("enterprise")) {
-      updated.mvpScope.push("Multi-tenant organization workspaces with custom subdomains (acme.platform.io)");
-      updated.techStack.push({
-        layer: "Database",
-        technology: "PostgreSQL Row-Level Security (RLS) + Schema Isolation",
-        rationale: "Ensures ironclad data separation between enterprise enterprise tenants."
+    } else if (lower.includes("localization") || lower.includes("arabic") || lower.includes("ar") || lower.includes("i18n") || lower.includes("language")) {
+      updated.mvpScope.push("Dual English & Arabic localization with bidirectional layout (RTL / LTR)");
+      updated.techStack = updated.techStack.map((tech) => {
+        if (tech.layer === "Frontend") {
+          return {
+            ...tech,
+            technology: `${tech.technology} + next-intl (i18n & RTL Engine)`,
+            rationale: "Seamless multi-language localization with zero-hydration layout flips and localized number/date formatting."
+          };
+        }
+        return tech;
       });
       updated.userStories.unshift({
-        id: "US-ENT-1",
-        epic: "Enterprise Multi-Tenancy",
-        title: "Role-Based Team Permissions (RBAC)",
-        asA: "Organization Admin",
-        iWantTo: "Invite team members with Owner, Editor, or Viewer roles",
-        soThat: "I control sensitive operations and billing settings across my company",
+        id: "US-I18N-1",
+        epic: "Internationalization & RTL",
+        title: "Dual Language Switching (English / Arabic)",
+        asA: "Global & Middle Eastern User",
+        iWantTo: "Toggle language instantly with flawless Right-to-Left (RTL) typography",
+        soThat: "I can comfortably interact in my native language without UI breakage",
         acceptanceCriteria: [
-          "Granular permission matrix enforced at API gateway",
-          "Audit logs for member invitation and role change events",
-          "Single Sign-On (SAML / Okta) ready"
+          "Instant one-click language toggle in header",
+          "Automatic RTL layout direction flip and typography scaling",
+          "Persisted language preference in session cookie"
+        ],
+        complexity: "Medium",
+        isMvp: true
+      });
+    } else if (lower.includes("ai") || lower.includes("agent") || lower.includes("assistant") || lower.includes("copilot") || lower.includes("chatbot")) {
+      updated.mvpScope.push("Context-aware AI copilot for automated workflows and smart recommendations");
+      updated.techStack.push({
+        layer: "AI & Agents",
+        technology: "Google Gemini 2.0 Flash / OpenAI Structured Outputs",
+        rationale: "High-speed reasoning engine for intent classification and autonomous execution."
+      });
+      updated.userStories.unshift({
+        id: "US-AI-1",
+        epic: "AI Intelligence Layer",
+        title: "Conversational Copilot & Task Automation",
+        asA: "Power User",
+        iWantTo: "Interact with an embedded AI assistant using natural language",
+        soThat: "I can automate repetitive configuration and get instant analytical insights",
+        acceptanceCriteria: [
+          "Streaming conversational response via SSE",
+          "Automated tool execution with user confirmation step",
+          "Exportable audit logs of AI recommendations"
         ],
         complexity: "High",
+        isMvp: true
+      });
+    } else if (lower.includes("stripe") || lower.includes("payment") || lower.includes("billing") || lower.includes("subscription")) {
+      updated.mvpScope.push("Tiered subscription plans with automated invoice billing via Stripe");
+      updated.techStack = updated.techStack.map((tech) => {
+        if (tech.layer === "Integrations") {
+          return {
+            layer: "Integrations",
+            technology: "Stripe Billing & Webhooks Engine",
+            rationale: "Handles recurring subscriptions, customer portal, and tax compliance globally."
+          };
+        }
+        return tech;
+      });
+      updated.userStories.unshift({
+        id: "US-PAY-1",
+        epic: "Monetization & Billing",
+        title: "Self-Serve Subscription & Checkout Portal",
+        asA: "Customer Account Owner",
+        iWantTo: "Upgrade or downgrade my plan with automatic prorated invoicing",
+        soThat: "My team has uninterrupted access to higher tier resources",
+        acceptanceCriteria: [
+          "Stripe hosted checkout integration with Apple/Google Pay",
+          "Automated webhook synchronization for subscription lifecycle",
+          "Instant receipt and VAT invoice generation"
+        ],
+        complexity: "Medium",
         isMvp: true
       });
     } else {

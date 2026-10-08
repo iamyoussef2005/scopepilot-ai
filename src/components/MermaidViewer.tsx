@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Copy, Check, Maximize2, Minimize2, AlertCircle } from "lucide-react";
+import { Copy, Check, Maximize2, Minimize2, AlertCircle, ZoomIn, ZoomOut, RotateCcw, Download } from "lucide-react";
 
 interface MermaidViewerProps {
   chart: string;
@@ -13,6 +13,7 @@ export default function MermaidViewer({ chart }: MermaidViewerProps) {
   const [copied, setCopied] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [renderError, setRenderError] = useState<string | null>(null);
+  const [zoom, setZoom] = useState<number>(1.0);
 
   useEffect(() => {
     let isMounted = true;
@@ -76,6 +77,23 @@ export default function MermaidViewer({ chart }: MermaidViewerProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDownloadSvg = () => {
+    if (!svgContent) return;
+    const blob = new Blob([svgContent], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "system-architecture.svg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const zoomIn = () => setZoom((z) => Math.min(2.5, Math.round((z + 0.15) * 100) / 100));
+  const zoomOut = () => setZoom((z) => Math.max(0.5, Math.round((z - 0.15) * 100) / 100));
+  const resetZoom = () => setZoom(1.0);
+
   return (
     <div
       className={`relative w-full rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 transition-all ${
@@ -85,14 +103,58 @@ export default function MermaidViewer({ chart }: MermaidViewerProps) {
       }`}
     >
       {/* Header bar */}
-      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-3 mb-4">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          <h4 className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
-            System Architecture Flowchart
+          <h4 className="text-xs font-semibold text-zinc-300 uppercase tracking-wider font-mono">
+            System Architecture Topology
           </h4>
         </div>
-        <div className="flex items-center gap-2">
+
+        {/* Toolbar: Zoom + Actions */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {/* Zoom controls */}
+          <div className="flex items-center rounded-lg border border-zinc-800 bg-zinc-900/90 p-0.5 font-mono text-[11px] text-zinc-400 mr-1">
+            <button
+              onClick={zoomOut}
+              className="p-1 hover:text-white hover:bg-zinc-800 rounded transition-colors"
+              title="Zoom Out"
+            >
+              <ZoomOut className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={resetZoom}
+              className="px-1.5 py-0.5 hover:text-white transition-colors"
+              title="Reset Zoom"
+            >
+              {Math.round(zoom * 100)}%
+            </button>
+            <button
+              onClick={zoomIn}
+              className="p-1 hover:text-white hover:bg-zinc-800 rounded transition-colors"
+              title="Zoom In"
+            >
+              <ZoomIn className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={resetZoom}
+              className="p-1 hover:text-white hover:bg-zinc-800 rounded transition-colors ml-0.5 border-l border-zinc-800"
+              title="Reset View"
+            >
+              <RotateCcw className="h-3 w-3" />
+            </button>
+          </div>
+
+          <button
+            onClick={handleDownloadSvg}
+            disabled={!svgContent}
+            className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-xs text-zinc-400 hover:text-white transition-colors disabled:opacity-40"
+            title="Download SVG Diagram"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span>SVG</span>
+          </button>
+
           <button
             onClick={handleCopy}
             className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-xs text-zinc-400 hover:text-white transition-colors"
@@ -100,6 +162,7 @@ export default function MermaidViewer({ chart }: MermaidViewerProps) {
             {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
             <span>{copied ? "Copied" : "Copy Source"}</span>
           </button>
+
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
             className="flex items-center gap-1 rounded-lg border border-zinc-800 bg-zinc-900 p-1 text-zinc-400 hover:text-white transition-colors"
@@ -124,9 +187,18 @@ export default function MermaidViewer({ chart }: MermaidViewerProps) {
       ) : svgContent ? (
         <div
           ref={containerRef}
-          className="flex justify-center items-center overflow-x-auto py-4 [&_svg]:max-w-full [&_svg]:h-auto transition-transform"
-          dangerouslySetInnerHTML={{ __html: svgContent }}
-        />
+          className="flex justify-center items-center overflow-auto py-6 min-h-[300px] transition-all"
+        >
+          <div
+            style={{
+              transform: `scale(${zoom})`,
+              transformOrigin: "center center",
+              transition: "transform 0.15s ease-out"
+            }}
+            className="flex justify-center items-center [&_svg]:max-w-none [&_svg]:h-auto"
+            dangerouslySetInnerHTML={{ __html: svgContent }}
+          />
+        </div>
       ) : (
         <div className="flex h-48 items-center justify-center text-xs text-zinc-500 font-mono">
           Compiling SVG architecture visualizer...

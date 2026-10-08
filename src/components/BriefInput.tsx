@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowRight, RefreshCw, Mic, MicOff, Activity, Receipt, Stethoscope, Terminal } from "lucide-react";
+import { ArrowRight, RefreshCw, Mic, MicOff, Terminal, Trash2, Sparkles, FileText } from "lucide-react";
 import { SAMPLE_PRESETS } from "@/lib/agent/demo-generator";
 
 interface BriefInputProps {
@@ -9,13 +9,17 @@ interface BriefInputProps {
   setBrief: (val: string) => void;
   isLoading: boolean;
   onSubmit: () => void;
+  onSelectPreset?: (key: "padel" | "invoicing" | "telehealth") => void;
+  activePresetKey?: string | null;
 }
 
 export default function BriefInput({
   brief,
   setBrief,
   isLoading,
-  onSubmit
+  onSubmit,
+  onSelectPreset,
+  activePresetKey
 }: BriefInputProps) {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
@@ -49,7 +53,7 @@ export default function BriefInput({
 
   const toggleListening = () => {
     if (!recognitionRef.current) {
-      alert("Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
+      alert("Speech recognition is not supported in this browser. Please use Chrome or Edge.");
       return;
     }
 
@@ -75,114 +79,155 @@ export default function BriefInput({
     }
   };
 
+  const handlePreset = (key: "padel" | "invoicing" | "telehealth") => {
+    setBrief(SAMPLE_PRESETS[key].brief);
+    if (onSelectPreset) {
+      onSelectPreset(key);
+    }
+  };
+
   return (
-    <div className="w-full rounded-xl border border-zinc-800 bg-zinc-950 p-5 sm:p-6 shadow-sm">
+    <div className="w-full rounded-xl border border-zinc-800 bg-[#111114] p-5 sm:p-6 shadow-sm">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5">
-        <div className="flex items-center gap-2">
-          <Terminal className="h-4 w-4 text-zinc-400" />
-          <h2 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider font-mono">
-            Client Brief & Functional Scope
+        <div>
+          <h2 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+            <FileText className="h-4 w-4 text-zinc-400" />
+            <span>Project Requirements & Technical Brief</span>
           </h2>
+          <p className="text-xs text-zinc-400 mt-0.5 font-sans">
+            Describe your product goals, feature list, or client RFP notes in Arabic or English.
+          </p>
         </div>
 
-        {/* Quick Presets */}
+        {/* Templates */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[11px] text-zinc-500 font-mono mr-1">Presets:</span>
+          <span className="text-[11px] text-zinc-500 font-mono">Sample RFPs:</span>
           <button
             type="button"
-            onClick={() => setBrief(SAMPLE_PRESETS.padel.brief)}
-            className="flex items-center gap-1 text-[11px] rounded-md bg-zinc-900 hover:bg-zinc-850 hover:border-zinc-700 text-zinc-300 px-2.5 py-1 transition-colors border border-zinc-800"
+            onClick={() => handlePreset("padel")}
+            className={`text-xs px-2.5 py-1 rounded-md transition-colors border ${
+              activePresetKey === "padel" || brief === SAMPLE_PRESETS.padel.brief
+                ? "bg-zinc-800 text-white border-zinc-700 font-medium"
+                : "bg-zinc-900/50 text-zinc-400 border-zinc-800 hover:text-zinc-200 hover:bg-zinc-850"
+            }`}
           >
-            <Activity className="h-3 w-3 text-zinc-400" />
-            <span>Padel Court Booking</span>
+            Court Booking
           </button>
           <button
             type="button"
-            onClick={() => setBrief(SAMPLE_PRESETS.invoicing.brief)}
-            className="flex items-center gap-1 text-[11px] rounded-md bg-zinc-900 hover:bg-zinc-850 hover:border-zinc-700 text-zinc-300 px-2.5 py-1 transition-colors border border-zinc-800"
+            onClick={() => handlePreset("invoicing")}
+            className={`text-xs px-2.5 py-1 rounded-md transition-colors border ${
+              activePresetKey === "invoicing" || brief === SAMPLE_PRESETS.invoicing.brief
+                ? "bg-zinc-800 text-white border-zinc-700 font-medium"
+                : "bg-zinc-900/50 text-zinc-400 border-zinc-800 hover:text-zinc-200 hover:bg-zinc-850"
+            }`}
           >
-            <Receipt className="h-3 w-3 text-zinc-400" />
-            <span>Freelancer Invoicing</span>
+            SaaS Invoicing
           </button>
           <button
             type="button"
-            onClick={() => setBrief(SAMPLE_PRESETS.telehealth.brief)}
-            className="flex items-center gap-1 text-[11px] rounded-md bg-zinc-900 hover:bg-zinc-850 hover:border-zinc-700 text-zinc-300 px-2.5 py-1 transition-colors border border-zinc-800"
+            onClick={() => handlePreset("telehealth")}
+            className={`text-xs px-2.5 py-1 rounded-md transition-colors border ${
+              activePresetKey === "telehealth" || brief === SAMPLE_PRESETS.telehealth.brief
+                ? "bg-zinc-800 text-white border-zinc-700 font-medium"
+                : "bg-zinc-900/50 text-zinc-400 border-zinc-800 hover:text-zinc-200 hover:bg-zinc-850"
+            }`}
           >
-            <Stethoscope className="h-3 w-3 text-zinc-400" />
-            <span>Clinical Triage Hub</span>
+            Telehealth
           </button>
         </div>
       </div>
 
       {/* Textarea container */}
-      <div className="relative rounded-lg border border-zinc-800 bg-zinc-900/60 focus-within:border-zinc-600 transition-colors">
+      <div className="relative rounded-lg border border-zinc-800 bg-[#09090b] focus-within:border-zinc-700 transition-colors">
         <textarea
-          rows={4}
+          rows={5}
+          dir="auto"
           value={brief}
           onChange={(e) => setBrief(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Paste client requirements, RFP notes, or project description..."
-          className="w-full bg-transparent p-3.5 pb-9 text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none transition-all resize-y leading-relaxed font-sans"
+          placeholder="Enter project requirements, RFP specifications, or user stories in English or Arabic...&#10;&#10;E.g., We need an on-demand logistics dispatch app with driver GPS tracking, automated bill of lading, and split settlements..."
+          className="w-full bg-transparent p-4 pb-12 text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none transition-all resize-y leading-relaxed font-sans"
         />
 
         {/* Lower Toolbar inside input */}
-        <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between pointer-events-none">
-          <span className="text-[10px] text-zinc-500 font-mono hidden sm:inline">
-            Press <kbd className="px-1 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700 font-mono text-[9px]">⌘ + Enter</kbd> to execute
+        <div className="absolute bottom-2.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
+          <span className="text-[11px] text-zinc-500 font-mono hidden sm:inline flex items-center gap-1.5">
+            <span>Press</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 text-[10px]">
+              ⌘ + Enter
+            </kbd>
+            <span>to generate</span>
           </span>
 
-          <button
-            type="button"
-            onClick={toggleListening}
-            className={`pointer-events-auto flex items-center gap-1.5 rounded px-2 py-1 text-[11px] font-mono transition-colors ${
-              isListening
-                ? "bg-rose-950/80 text-rose-300 border border-rose-800"
-                : "bg-zinc-800/80 text-zinc-400 hover:text-zinc-200 border border-zinc-700/60"
-            }`}
-          >
-            {isListening ? (
-              <>
-                <MicOff className="h-3 w-3 text-rose-400 animate-pulse" />
-                <span>Recording...</span>
-              </>
-            ) : (
-              <>
-                <Mic className="h-3 w-3 text-zinc-400" />
-                <span>Voice Dictate</span>
-              </>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono text-zinc-500 hidden md:inline">
+              {brief.trim().length} chars
+            </span>
+
+            {brief.trim().length > 0 && (
+              <button
+                type="button"
+                onClick={() => setBrief("")}
+                className="pointer-events-auto flex items-center gap-1 rounded px-2 py-1 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-850 transition-colors"
+                title="Clear input text"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                <span>Clear</span>
+              </button>
             )}
-          </button>
+
+            <button
+              type="button"
+              onClick={toggleListening}
+              className={`pointer-events-auto flex items-center gap-1.5 rounded px-2 py-1 text-xs transition-colors border ${
+                isListening
+                  ? "bg-rose-950/60 text-rose-300 border-rose-800"
+                  : "bg-zinc-900 text-zinc-400 hover:text-zinc-200 border-zinc-800"
+              }`}
+            >
+              {isListening ? (
+                <>
+                  <MicOff className="h-3.5 w-3.5 text-rose-400" />
+                  <span>Listening</span>
+                </>
+              ) : (
+                <>
+                  <Mic className="h-3.5 w-3.5" />
+                  <span>Dictate</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Footer bar */}
+      {/* Footer action bar */}
       <div className="mt-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-[11px] text-zinc-500 font-mono">
-          <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" />
-          <span>Multi-Agent Synthesis Pipeline: Product • Architecture • Delivery • Security</span>
+        <div className="text-xs text-zinc-500 font-sans">
+          Generates structured user stories, interactive Mermaid architecture, Prisma schema, and sprint budgets.
         </div>
 
         <button
           type="button"
           disabled={isLoading || brief.trim().length < 5}
           onClick={onSubmit}
-          className={`flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-medium transition-all ${
+          className={`flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition-all ${
             isLoading || brief.trim().length < 5
               ? "bg-zinc-900 text-zinc-600 border border-zinc-800 cursor-not-allowed"
-              : "bg-zinc-100 hover:bg-white text-zinc-950 font-semibold shadow-sm active:scale-[0.98]"
+              : "bg-zinc-100 hover:bg-white text-zinc-950 shadow-sm"
           }`}
         >
           {isLoading ? (
             <>
-              <RefreshCw className="h-3.5 w-3.5 animate-spin text-zinc-700" />
-              <span>Synthesizing Blueprint...</span>
+              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+              <span>Generating Specification...</span>
             </>
           ) : (
             <>
-              <span>Execute Architecture Run</span>
-              <ArrowRight className="h-3.5 w-3.5 text-zinc-700" />
+              <span>Compile Architecture Blueprint</span>
+              <ArrowRight className="h-3.5 w-3.5" />
             </>
           )}
         </button>

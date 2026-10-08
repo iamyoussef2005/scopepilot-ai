@@ -35,6 +35,7 @@ export interface ApiEndpoint {
 export interface CodeArtifacts {
   prismaSchema: string;
   dockerCompose: string;
+  envExample?: string;
   apiEndpoints: ApiEndpoint[];
 }
 

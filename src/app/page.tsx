@@ -12,14 +12,28 @@ import { SAMPLE_PRESETS } from "@/lib/agent/demo-generator";
 
 export default function Home() {
   const [apiKey, setApiKey] = useState("");
+  const [lang, setLang] = useState<"en" | "ar">("en");
   const [brief, setBrief] = useState(SAMPLE_PRESETS.padel.brief);
+  const [activePreset, setActivePreset] = useState<"padel" | "invoicing" | "telehealth">("padel");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
   const [agentSteps, setAgentSteps] = useState<AgentStep[]>([]);
   const [blueprint, setBlueprint] = useState<ProductBlueprint | null>(
     SAMPLE_PRESETS.padel.blueprint
   );
+  const [showProposalModal, setShowProposalModal] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleSelectPreset = (key: "padel" | "invoicing" | "telehealth") => {
+    setActivePreset(key);
+    const preset = SAMPLE_PRESETS[key];
+    if (preset) {
+      setBrief(preset.brief);
+      setBlueprint(preset.blueprint);
+      setAgentSteps([]);
+      setErrorMsg(null);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!brief || brief.trim().length < 5) return;
@@ -144,33 +158,47 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950 font-sans text-zinc-100 selection:bg-zinc-800">
-      <Navbar apiKey={apiKey} setApiKey={setApiKey} />
+    <div
+      dir={lang === "ar" ? "rtl" : "ltr"}
+      className="flex min-h-screen flex-col bg-zinc-950 font-sans text-zinc-100 selection:bg-zinc-800"
+    >
+      <Navbar apiKey={apiKey} setApiKey={setApiKey} lang={lang} setLang={setLang} />
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6">
         {/* Clean Engineering Header */}
-        <section className="space-y-2 border-b border-zinc-850 pb-6">
-          <div className="flex items-center gap-2 font-mono text-[11px] text-zinc-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            <span>Autonomous Product & Solution Architecture</span>
-            <span className="text-zinc-600">/</span>
-            <span>Zero-Trust Enterprise Modeling</span>
-          </div>
-
+        <section className="space-y-3 border-b border-zinc-800 pb-6 pt-2">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-                Technical Blueprint & Specification Studio
+              <div className="flex items-center gap-2 text-xs text-zinc-400 font-mono mb-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                <span>
+                  {lang === "ar"
+                    ? "استوديو هندسة ومواصفات الأنظمة البرمجية"
+                    : "Software Architecture & Specification Studio"}
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-100 font-sans">
+                {lang === "ar"
+                  ? "تحويل متطلبات المشاريع إلى مواصفات معمارية جاهزة للتنفيذ"
+                  : "Turn project requirements into production-ready software architectures."}
               </h1>
-              <p className="mt-1 text-xs sm:text-sm text-zinc-400 max-w-2xl font-sans leading-relaxed">
-                Transform unstructured project briefs into structured user stories, interactive architecture graphs, typed data models, and costed sprint roadmaps.
+              <p className="mt-1.5 text-xs sm:text-sm text-zinc-400 max-w-3xl font-sans leading-relaxed">
+                {lang === "ar"
+                  ? "قم بصياغة متطلبات مشروعك للحصول على قصص مستخدمين تفصيلية، ومخططات معمارية تفاعلية بـ Mermaid، ونماذج بيانات Prisma، وجدول سبرنتات زمني وميزانية تقديرية."
+                  : "Compile unstructured client briefs and RFPs into verified user stories, interactive Mermaid system topologies, typed Prisma data schemas, and costed sprint roadmaps."}
               </p>
             </div>
 
-            <div className="flex items-center gap-2 font-mono text-[11px] text-zinc-400">
-              <span className="rounded bg-zinc-900 px-2 py-1 border border-zinc-800">SOC 2 Type II</span>
-              <span className="rounded bg-zinc-900 px-2 py-1 border border-zinc-800">GDPR Ready</span>
-              <span className="rounded bg-zinc-900 px-2 py-1 border border-zinc-800">Automated SOW</span>
+            <div className="flex items-center gap-1.5 text-xs font-mono text-zinc-400 shrink-0">
+              <span className="rounded border border-zinc-800 bg-zinc-900/60 px-2.5 py-1">
+                Next.js 15
+              </span>
+              <span className="rounded border border-zinc-800 bg-zinc-900/60 px-2.5 py-1">
+                Prisma ORM
+              </span>
+              <span className="rounded border border-zinc-800 bg-zinc-900/60 px-2.5 py-1">
+                Mermaid.js
+              </span>
             </div>
           </div>
         </section>
@@ -182,6 +210,8 @@ export default function Home() {
             setBrief={setBrief}
             isLoading={isGenerating}
             onSubmit={handleGenerate}
+            onSelectPreset={handleSelectPreset}
+            activePresetKey={activePreset}
           />
         </section>
 
@@ -201,8 +231,13 @@ export default function Home() {
         {blueprint && (
           <section className="space-y-4">
             <RefinePromptBar onRefine={handleRefine} isRefining={isRefining} />
-            <ActionToolbar blueprint={blueprint} />
-            <BlueprintDashboard blueprint={blueprint} />
+            <ActionToolbar blueprint={blueprint} onOpenProposal={() => setShowProposalModal(true)} />
+            <BlueprintDashboard
+              blueprint={blueprint}
+              lang={lang}
+              showProposalModal={showProposalModal}
+              setShowProposalModal={setShowProposalModal}
+            />
           </section>
         )}
       </main>
